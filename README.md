@@ -5,7 +5,7 @@
 
 PyTrack game engine for 2D & 3D cross platform game development and designing 
 
-  - Drag & Drop designer
+  - Drag & Drop scene designer
   - Node Editor & script Editor
   - Export to Any plateform (Android,windows,macOS,IOS,HTML5)
   - BuiltIn Game Tester and Debuger 
@@ -16,6 +16,13 @@ This project is licensed under the [MIT license](LICENSE).
 
 ![MIT License](https://danielmiessler.com/images/mitlicense.png)
 
+## Installation
+* Install python 3.6
+* cd to the directory where requirements.txt is located (root).
+* activate your virtualenv.
+```
+pip install -r requirements.txt 
+```
 # Refrences used in the the Project
 
 ### Project Structre 
@@ -44,13 +51,15 @@ https://www.slideshare.net/AttilaJenei/game-engine-architecture-34006558?from_ac
 ### python tuts 
 ```sh
 https://www.youtube.com/watch?v=cbot48lckOs
-```
+
 
 https://github.com/alejandroautalan/pygubu
-
+```
 ### kiwi.js
-http://www.kiwijs.org
 
+```
+http://www.kiwijs.org
+```
 ### object tracker wxDC
 ```sh
 http://www.lprp.fr/soft/rphoto/rphoto_en.php3
