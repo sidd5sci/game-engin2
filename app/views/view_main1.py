@@ -47,8 +47,8 @@ class MainWindow(wx.Frame):
         self.node_module = args[0]
         self.designer = args[1]
         self.count = 0
-	
-	self.initEditor()
+
+        self.initEditor()
 
     def initEditor(self):
 
@@ -60,62 +60,62 @@ class MainWindow(wx.Frame):
         self.Maximize(True)
         self.Centre()
         self.Show()
+        self.SetBackgroundColour(wx.Colour(12, 24, 33))
 
-	self.SetBackgroundColour(wx.Colour(12, 24, 33))
         bSizer1 = wx.BoxSizer(wx.HORIZONTAL)
 
-	self.m_panel1 = wx.Panel(
-	self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-	bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
-	# scroll window
-	self.m_scrolledWindow4 = wx.ScrolledWindow(
-	self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL | wx.VSCROLL)
-	self.m_scrolledWindow4.SetScrollRate(5, 5)
-	self.m_scrolledWindow4.SetMaxSize(wx.Size(150, -1))
+        self.m_panel1 = wx.Panel(
+            self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+        # scroll window
+        self.m_scrolledWindow4 = wx.ScrolledWindow(
+            self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL | wx.VSCROLL)
+        self.m_scrolledWindow4.SetScrollRate(5, 5)
+        self.m_scrolledWindow4.SetMaxSize(wx.Size(150, -1))
 
-	bSizer2.Add(self.m_scrolledWindow4, 1, wx.EXPAND | wx.ALL, 5)
-	# notebook
-	self.m_notebook1 = wx.Notebook(
-	self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0)
-	page1 = PageOne(self.m_notebook1)
+        bSizer2.Add(self.m_scrolledWindow4, 1, wx.EXPAND | wx.ALL, 5)
+        # notebook
+        self.m_notebook1 = wx.Notebook(
+            self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0)
+        page1 = PageOne(self.m_notebook1)
         page2 = PageTwo(self.m_notebook1, self.designer)
         page3 = PageThree(self.m_notebook1, self.node_module)
 
-	self.m_notebook1.AddPage(page1, " Start ")
-	self.m_notebook1.AddPage(page2, " Design ")
-	self.m_notebook1.AddPage(page3, " Nodes ")
+        self.m_notebook1.AddPage(page1, " Start ")
+        self.m_notebook1.AddPage(page2, " Design ")
+        self.m_notebook1.AddPage(page3, " Nodes ")
 
-	bSizer2.Add(self.m_notebook1, 1, wx.EXPAND | wx.ALL, 5)
-	# panel for data tree and properties
-	self.m_panel3 = wx.Panel(self.m_panel1, wx.ID_ANY,
-	                         wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-	bSizer3 = wx.BoxSizer(wx.VERTICAL)
+        bSizer2.Add(self.m_notebook1, 1, wx.EXPAND | wx.ALL, 5)
+        # panel for data tree and properties
+        self.m_panel3 = wx.Panel(self.m_panel1, wx.ID_ANY,
+                                 wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        bSizer3 = wx.BoxSizer(wx.VERTICAL)
 
-	self.m_treeCtrl1 = wx.TreeCtrl(
-	self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE)
-	self.m_treeCtrl1.SetMinSize(wx.Size(200, 400))
-	self.m_treeCtrl1.SetMaxSize(wx.Size(200, -1))
+        self.m_treeCtrl1 = wx.TreeCtrl(
+                self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE)
+        self.m_treeCtrl1.SetMinSize(wx.Size(200, 400))
+        self.m_treeCtrl1.SetMaxSize(wx.Size(200, -1))
 
-	self.root = self.m_treeCtrl1.AddRoot('Root')
-	self.m_treeCtrl1.SetPyData(self.root, ('key', 'value'))
-	self.m_treeCtrl1.AppendItem(self.root, 'Assets')
-	self.m_treeCtrl1.Expand(self.root)
+        self.root = self.m_treeCtrl1.AddRoot('Root')
+        self.m_treeCtrl1.SetPyData(self.root, ('key', 'value'))
+        self.m_treeCtrl1.AppendItem(self.root, 'Assets')
+        self.m_treeCtrl1.Expand(self.root)
 
-	bSizer3.Add(self.m_treeCtrl1, 0, wx.ALL, 5)
+        bSizer3.Add(self.m_treeCtrl1, 0, wx.ALL, 5)
 
-	self.m_panel3.SetSizer(bSizer3)
-	self.m_panel3.Layout()
-	bSizer3.Fit(self.m_panel3)
+        self.m_panel3.SetSizer(bSizer3)
+        self.m_panel3.Layout()
+        bSizer3.Fit(self.m_panel3)
 
-	bSizer2.Add(self.m_panel3, 1, wx.EXPAND | wx.ALL, 5)
-	# adding sizers
-	self.m_panel1.SetSizer(bSizer2)
-	self.m_panel1.Layout()
-	bSizer2.Fit(self.m_panel1)
-	bSizer1.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 5)
+        bSizer2.Add(self.m_panel3, 1, wx.EXPAND | wx.ALL, 5)
+        # adding sizers
+        self.m_panel1.SetSizer(bSizer2)
+        self.m_panel1.Layout()
+        bSizer2.Fit(self.m_panel1)
+        bSizer1.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 5)
 
-	self.SetSizer(bSizer1)
-	self.Layout()
+        self.SetSizer(bSizer1)
+        self.Layout()
 
     def onNewChild(self, evt):
         self.count += 1
@@ -137,25 +137,35 @@ class MainWindow(wx.Frame):
 
     def onNewProject(self, evt):
         # child = MyDialog(self, "New Project").ShowModal()
-	dialog = importlib.import_module('views.dialog.dialog_new_project', '.')
+        dialog = importlib.import_module('views.dialog.dialog_new_project', '.')
         dialog.MyDialog(self).ShowModal()
-	
-    def onOpenProject(self,evt):
-	
-	dialog = importlib.import_module('views.dialog.dialog_open_project', '.')
+
+    def onOpenProject(self, evt):
+
+        dialog = importlib.import_module('views.dialog.dialog_open_project', '.')
+        dialog.MyDialog(self).ShowModal()
+
+    def onSaveAsProject(self, evt):
+
+        dialog = importlib.import_module('views.dialog.dialog_save_project', '.')
         dialog.MyDialog(self).ShowModal()
     
-    def onSaveAsProject(self,evt):
-	
-	dialog = importlib.import_module('views.dialog.dialog_save_project', '.')
-        dialog.MyDialog(self).ShowModal()
-    
+    def onRun():
+        server = importlib.import_module('controllers.server_controller','.')
+        s = server.Server(name,"8000")
+        s.start()
+
+    def onStop():
+        server = importlib.import_module('controllers.server_controller','.')
+        s = server.Server()
+        s.stop()
+
     def MakeMenuBar(self):
         m_menubar1 = wx.MenuBar(0)
         m_menubar1.SetForegroundColour(
-            wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
+                wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
         m_menubar1.SetBackgroundColour(
-            wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVECAPTIONTEXT))
+                wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVECAPTIONTEXT))
 
         m_File = wx.Menu()
         item = m_File.Append(-1, u"New Project\tCtrl-N")
@@ -163,27 +173,26 @@ class MainWindow(wx.Frame):
         item = m_File.Append(-1, u"Open Project\tCtrl-O")
         self.Bind(wx.EVT_MENU, self.onOpenProject, item)
         item = m_File.Append(-1, u"Close Project")
-	m_File.AppendSeparator()
+        m_File.AppendSeparator()
         item = m_File.Append(-1, u"Save ..\tCtrl-S")
         item = m_File.Append(-1, u"Save As ..\tCtrl-Shift-S")
-	self.Bind(wx.EVT_MENU,self.onSaveAsProject,item)
-	m_File.AppendSeparator()
+        self.Bind(wx.EVT_MENU, self.onSaveAsProject, item)
+        m_File.AppendSeparator()
         item = m_File.Append(-1, u"Import\tCtrl-M")
         item = m_File.Append(-1, u"Export\tCtrl-E")
-	m_File.AppendSeparator()
+        m_File.AppendSeparator()
         item = m_File.Append(-1, u"Close All")
         self.Bind(wx.EVT_MENU, self.onDoClose, item)
 
         m_menubar1.Append(m_File, u"File")
 
         m_Edit = wx.Menu()
-	item = m_Edit.Append(-1, u"Undo\tCtrl-Z")
+        item = m_Edit.Append(-1, u"Undo\tCtrl-Z")
         item = m_Edit.Append(-1, u"Redo\tCtrl-Shift-Z")
-	m_Edit.AppendSeparator()
+        m_Edit.AppendSeparator()
         item = m_Edit.Append(-1, u"Cut\tCtrl-X")
         item = m_Edit.Append(-1, u"Copy\tCtrl-C")
         item = m_Edit.Append(-1, u"Paste\tCtrl-V")
-	
 
         m_menubar1.Append(m_Edit, u"Edit")
 
@@ -194,6 +203,14 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onNewNode, item)
 
         m_menubar1.Append(m_View, u"View")
+
+        m_Run = wx.Menu()
+        item = m_Run.Append(-1, u"Run\tCtrl-shift-R")
+        self.Bind(wx.EVT_MENU, self.onRun, item)
+        item = m_Run.Append(-1, u"Stop\tCtrl-shift-S")
+        self.Bind(wx.EVT_MENU, self.onStop, item)
+
+        m_menubar1.Append(m_View, u"Run")
 
         # mb = wx.MenuBar()
         # menu = wx.Menu()
@@ -213,170 +230,168 @@ class MainWindow(wx.Frame):
 
 class XmlTree(wx.TreeCtrl):
 
-    def __init__(self, parent, id, pos, size, style):
-        wx.TreeCtrl.__init__(self, parent, id, pos, size, style)
+        def __init__(self, parent, id, pos, size, style):
+                wx.TreeCtrl.__init__(self, parent, id, pos, size, style)
 
-        try:
-            with open(parent.xml_path) as f:
-                xml = f.read()
-        except IOError:
-            print('Bad file')
-            return
-        except Exception as e:
-            print('Really bad error')
-            print(e)
-            return
+                try:
+                        with open(parent.xml_path) as f:
+                                xml = f.read()
+                except IOError:
+                        print('Bad file')
+                        return
+                except Exception as e:
+                        print('Really bad error')
+                        print(e)
+                        return
 
-        self.xml_root = objectify.fromstring(xml)
+                self.xml_root = objectify.fromstring(xml)
 
-        root = self.AddRoot(self.xml_root.tag)
-        self.SetPyData(root, ('key', 'value'))
+                root = self.AddRoot(self.xml_root.tag)
+                self.SetPyData(root, ('key', 'value'))
 
-        for top_level_item in self.xml_root.getchildren():
-            child = self.AppendItem(root, top_level_item.tag)
-            self.SetItemHasChildren(child)
-            if top_level_item.attrib:
-                self.SetPyData(child, top_level_item.attrib)
+                for top_level_item in self.xml_root.getchildren():
+                        child = self.AppendItem(root, top_level_item.tag)
+                        self.SetItemHasChildren(child)
+                        if top_level_item.attrib:
+                                self.SetPyData(child, top_level_item.attrib)
 
-        self.Expand(root)
-        self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self.onItemExpanding)
+                self.Expand(root)
+                self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self.onItemExpanding)
 
-    def onItemExpanding(self, event):
-        item = event.GetItem()
-        book_id = self.GetPyData(item)
+        def onItemExpanding(self, event):
+                item = event.GetItem()
+                book_id = self.GetPyData(item)
 
-        for top_level_item in self.xml_root.getchildren():
-            if top_level_item.attrib == book_id:
-                book = top_level_item
-                self.SetPyData(item, top_level_item)
-                self.add_book_elements(item, book)
-                break
+                for top_level_item in self.xml_root.getchildren():
+                        if top_level_item.attrib == book_id:
+                                book = top_level_item
+                                self.SetPyData(item, top_level_item)
+                                self.add_book_elements(item, book)
+                                break
 
-    def add_book_elements(self, item, book):
-        for element in book.getchildren():
-            child = self.AppendItem(item, element.tag)
-            if element.getchildren():
-                self.SetItemHasChildren(child)
+        def add_book_elements(self, item, book):
+                for element in book.getchildren():
+                        child = self.AppendItem(item, element.tag)
+                        if element.getchildren():
+                                self.SetItemHasChildren(child)
 
-            if element.attrib:
-                self.SetPyData(child, element.attrib)
+                        if element.attrib:
+                                self.SetPyData(child, element.attrib)
 
 
 class TreePanel(wx.Panel):
 
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
+        def __init__(self, parent):
+                wx.Panel.__init__(self, parent)
 
-        self.tree = MyTree(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
-                           wx.TR_HAS_BUTTONS)
+                self.tree = MyTree(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize,
+                                wx.TR_HAS_BUTTONS)
 
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.tree, 0, wx.EXPAND)
-        self.SetSizer(sizer)
+                sizer = wx.BoxSizer(wx.VERTICAL)
+                sizer.Add(self.tree, 0, wx.EXPAND)
+                self.SetSizer(sizer)
 
 
 class PageOne(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        t = wx.StaticText(self, -1, "This is a PageOne object", (20, 20))
+        def __init__(self, parent):
+                wx.Panel.__init__(self, parent)
+                t = wx.StaticText(self, -1, "This is a PageOne object", (20, 20))
 
 
 class PageTwo(wx.Panel):
-    def __init__(self, parent, *args):
-        wx.Panel.__init__(self, parent)
-        # t = wx.StaticText(self, -1, "This is a PageTwo object", (40, 40))
-        
-	p = SDLPanel(self, -1, (1000, 680), args[0])
+        def __init__(self, parent, *args):
+                wx.Panel.__init__(self, parent)
+                # t = wx.StaticText(self, -1, "This is a PageTwo object", (40, 40))
+                p = SDLPanel(self, -1, (1000, 680), args[0])
 
 
 class PageThree(wx.Panel):
-    def __init__(self, parent, *args):
-        wx.Panel.__init__(self, parent)
-        # t = wx.StaticText(self, -1, "This is a PageThree object", (60, 60))
-        nde = importlib.import_module('views.node_app.nodeEditor','.')
-	p = nde.NodeEditor(self, -1, (1000, 680), args[0])
-
+        def __init__(self, parent, *args):
+                wx.Panel.__init__(self, parent)
+                # t = wx.StaticText(self, -1, "This is a PageThree object", (60, 60))
+                nde = importlib.import_module('views.node_app.nodeEditor', '.')
+                p = nde.NodeEditor(self, -1, (1000, 680), args[0])
 
 
 class SDLThread:
-    def __init__(self, designer):
-        self.m_bKeepGoing = self.m_bRunning = False
-        self.designer = designer
-        self.color = (255, 0, 0)
-        self.rect = (10, 10, 100, 100)
-        self.thread = None
-        self.init = True
+        def __init__(self, designer):
+                self.m_bKeepGoing = self.m_bRunning = False
+                self.designer = designer
+                self.color = (255, 0, 0)
+                self.rect = (10, 10, 100, 100)
+                self.thread = None
+                self.init = True
 
-    def Start(self):
-        #I rewrote this to use the higherlevel threading module
-        self.m_bKeepGoing = self.m_bRunning = True
-        self.thread = threading.Thread(group=None, target=self.Run, name=None,
-                                       args=(), kwargs={})
-        self.thread.start()
+        def Start(self):
+                #I rewrote this to use the higherlevel threading module
+                self.m_bKeepGoing = self.m_bRunning = True
+                self.thread = threading.Thread(group=None, target=self.Run, name=None,
+                                        args=(), kwargs={})
+                self.thread.start()
 
-    def Stop(self):
-        self.m_bKeepGoing = False
-        #this important line make sure that the draw thread exits before
-        #pygame.quit() is called so there is no errors
-        self.thread.join()
+        def Stop(self):
+                self.m_bKeepGoing = False
+                #this important line make sure that the draw thread exits before
+                #pygame.quit() is called so there is no errors
+                self.thread.join()
 
-    def IsRunning(self):
-        return self.m_bRunning
+        def IsRunning(self):
+                return self.m_bRunning
 
-    def Run(self):
-        while self.m_bKeepGoing:
-            #I rewrote this to only draw when the position changes
-            # e = pygame.event.poll()
-            # if e.type == pygame.MOUSEBUTTONDOWN:
-            #     self.color = (255,0,128)
-            #     self.rect = (e.pos[0], e.pos[1], 100, 100)
-            #     print (e.pos)
-            #     self.screen.fill((0,0,0))
-            #     self.screen.fill(self.color,self.rect)
-            # if self.init:
-            #     self.screen.fill((0,0,0))
-            #     self.screen.fill(self.color,self.rect)
-            # pygame.display.flip()
-            self.designer.main()
-        self.m_bRunning = False
-        print ("pygame draw loop exited")
+        def Run(self):
+                while self.m_bKeepGoing:
+                #I rewrote this to only draw when the position changes
+                # e = pygame.event.poll()
+                # if e.type == pygame.MOUSEBUTTONDOWN:
+                #     self.color = (255,0,128)
+                #     self.rect = (e.pos[0], e.pos[1], 100, 100)
+                #     print (e.pos)
+                #     self.screen.fill((0,0,0))
+                #     self.screen.fill(self.color,self.rect)
+                # if self.init:
+                #     self.screen.fill((0,0,0))
+                #     self.screen.fill(self.color,self.rect)
+                # pygame.display.flip()
+                        self.designer.main()
+                self.m_bRunning = False
+                print("pygame draw loop exited")
 
 
 class SDLPanel(wx.Panel):
-    def __init__(self, parent, ID, tplSize, *args):
-        global pygame
-        global pygame_init_flag
-        wx.Panel.__init__(self, parent, ID, size=tplSize)
-        self.Fit()
-        os.environ['SDL_WINDOWID'] = str(self.GetHandle())
-        os.environ['SDL_VIDEODRIVER'] = 'windib'
-        #here is where things change if pygame has already been initialized
-        #we need to do so again
-        n = args[0]
-        if pygame_init_flag:
-            #call pygame.init() on subsaquent windows
-            #pygame.init()
-            n.initPygame()
-        else:
-            #import if this is the first time
-            import pygame
+        def __init__(self, parent, ID, tplSize, *args):
+                global pygame
+                global pygame_init_flag
+                wx.Panel.__init__(self, parent, ID, size=tplSize)
+                self.Fit()
+                os.environ['SDL_WINDOWID'] = str(self.GetHandle())
+                os.environ['SDL_VIDEODRIVER'] = 'windib'
+                #here is where things change if pygame has already been initialized
+                #we need to do so again
+                n = args[0]
+                if pygame_init_flag:
+                        #call pygame.init() on subsaquent windows
+                        #pygame.init()
+                        n.initPygame()
+                else:
+                        #import if this is the first time
+                        import pygame
 
-        n.initPygame()
-        pygame_init_flag = True  # make sure we know that pygame has been imported
-        #pygame.display.init()
-        #window = pygame.display.set_mode(tplSize)
-        self.thread = SDLThread(n)
-        self.thread.Start()
+                n.initPygame()
+                pygame_init_flag = True  # make sure we know that pygame has been imported
+                #pygame.display.init()
+                #window = pygame.display.set_mode(tplSize)
+                self.thread = SDLThread(n)
+                self.thread.Start()
 
-    def __del__(self):
-        self.thread.Stop()
-        print("thread stoped")
-        #very important line, this makes sure that pygame exits before we
-        #reinitialize it other wise we get errors
-        pygame.quit()
+        def __del__(self):
+                self.thread.Stop()
+                print("thread stoped")
+                #very important line, this makes sure that pygame exits before we
+                #reinitialize it other wise we get errors
+                pygame.quit()
 
 
 if __name__ == '__main__':
-    app = wx.App()
-    NodeEditor(None, 'Node Editor')
-    app.MainLoop()
+        app = wx.App()
+        NodeEditor(None, 'Node Editor')
+        app.MainLoop()

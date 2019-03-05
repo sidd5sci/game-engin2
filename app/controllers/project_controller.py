@@ -22,14 +22,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
-import os,time,random,math
+import os,time,random,math,subprocess
 
 import importlib
 
 class Project():
         
         def __init__(self,*args,**kwargs):
-                pass
+                
                 self.paths =  importlib.import_module('paths','.')
         
         def createNewProject(self,name,oriantation):
@@ -37,7 +37,19 @@ class Project():
                 # Create target Directory if don't exist
                 if not os.path.exists(name):
                         os.mkdir(name)
+                        os.chdir(self.paths.projects_path+name)
+                        # returned_value = os.system("python -m http.server")
+                        os.mkdir("core")
+                        os.mkdir("resources")
+                        os.mkdir("nodes")
+                        os.chdir(self.paths.projects_path+name+"\\resources")
+                        os.mkdir("music")
+                        os.mkdir("sounds")
+                        os.mkdir("sprites")
+                        os.mkdir("scenes")
+
                         print("Directory " , name ,  " Created ")
+
                 else:    
                         print("Directory " , name ,  " already exists")
         
