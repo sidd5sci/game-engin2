@@ -84,7 +84,15 @@ class Tile(object):
                 else: return 0
             else: return 0
         else: return 0
-
+            
+    def isInside(self,x,y):
+        FlagedTile = False 
+        if x > self.x and x < self.x+self.width:
+            if y > self.y and y < self.y+self.height:
+                FlagedTile = True
+                #t.textureEnabled = False
+                self.selected = True
+        return FlagedTile
 
         
 if __name__ == "__main__":

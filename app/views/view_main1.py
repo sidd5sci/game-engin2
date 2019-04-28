@@ -27,6 +27,7 @@ from pygame.locals import *
 import wx
 import wx.xrc
 import wx.aui
+import wx.richtext
 import wx.dataview
 import wx.propgrid as pg
 import os
@@ -67,23 +68,30 @@ class MainWindow(wx.Frame):
         self.m_panel1 = wx.Panel(
             self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        # scroll window
-        self.m_scrolledWindow4 = wx.ScrolledWindow(
-            self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL | wx.VSCROLL)
-        self.m_scrolledWindow4.SetScrollRate(5, 5)
-        self.m_scrolledWindow4.SetMaxSize(wx.Size(150, -1))
+        # side menu notebook
+        self.side_menu = wx.Notebook(self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0)
+        
+        sideMenu1 = importlib.import_module('views.panels.side_menu','.')
+        page1_menu = sideMenu1.SideMenuPanel(self.side_menu,self.designer)
+        sideMenu2 = importlib.import_module('views.panels.side_menu2','.')
+        page2_menu = sideMenu2.SideMenuPanel2(self.side_menu,self.designer)
+        self.side_menu.AddPage(page1_menu,"Edit")
+        self.side_menu.AddPage(page2_menu,"Objects")
 
-        bSizer2.Add(self.m_scrolledWindow4, 1, wx.EXPAND | wx.ALL, 5)
+        bSizer2.Add(self.side_menu, 1, wx.EXPAND | wx.ALL, 5)
         # notebook
         self.m_notebook1 = wx.Notebook(
             self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0)
         page1 = PageOne(self.m_notebook1)
         page2 = PageTwo(self.m_notebook1, self.designer)
         page3 = PageThree(self.m_notebook1, self.node_module)
+        page4 = PageFour(self.m_notebook1)
 
         self.m_notebook1.AddPage(page1, " Start ")
         self.m_notebook1.AddPage(page2, " Design ")
         self.m_notebook1.AddPage(page3, " Nodes ")
+        self.m_notebook1.AddPage(page4, " Script Editor ")
+
 
         bSizer2.Add(self.m_notebook1, 1, wx.EXPAND | wx.ALL, 5)
         # panel for data tree and properties
@@ -98,7 +106,11 @@ class MainWindow(wx.Frame):
 
         self.root = self.m_treeCtrl1.AddRoot('Root')
         self.m_treeCtrl1.SetPyData(self.root, ('key', 'value'))
-        self.m_treeCtrl1.AppendItem(self.root, 'Assets')
+        self.m_treeCtrl1.AppendItem(self.root, 'Core')
+        self.m_treeCtrl1.AppendItem(self.root, 'Objects')
+        self.m_treeCtrl1.AppendItem(self.root, 'Events')
+        self.m_treeCtrl1.AppendItem(self.root, 'Nodes')
+
         self.m_treeCtrl1.Expand(self.root)
 
         bSizer3.Add(self.m_treeCtrl1, 0, wx.ALL, 5)
@@ -113,6 +125,8 @@ class MainWindow(wx.Frame):
         self.m_panel1.Layout()
         bSizer2.Fit(self.m_panel1)
         bSizer1.Add(self.m_panel1, 1, wx.EXPAND | wx.ALL, 5)
+
+        
 
         self.SetSizer(bSizer1)
         self.Layout()
@@ -150,14 +164,14 @@ class MainWindow(wx.Frame):
         dialog = importlib.import_module('views.dialog.dialog_save_project', '.')
         dialog.MyDialog(self).ShowModal()
     
-    def onRun():
+    def onRun(self, evt):
         server = importlib.import_module('controllers.server_controller','.')
-        s = server.Server(name,"8000")
+        s = server.Server("shmup","8000")
         s.start()
 
-    def onStop():
+    def onStop(self, evt):
         server = importlib.import_module('controllers.server_controller','.')
-        s = server.Server()
+        s = server.Server("shmup","8000")
         s.stop()
 
     def MakeMenuBar(self):
@@ -210,7 +224,7 @@ class MainWindow(wx.Frame):
         item = m_Run.Append(-1, u"Stop\tCtrl-shift-S")
         self.Bind(wx.EVT_MENU, self.onStop, item)
 
-        m_menubar1.Append(m_View, u"Run")
+        m_menubar1.Append(m_Run, u"Run")
 
         # mb = wx.MenuBar()
         # menu = wx.Menu()
@@ -224,6 +238,20 @@ class MainWindow(wx.Frame):
 
         self.SetMenuBar(m_menubar1)
         # return mb
+        self.m_toolBar1 = self.CreateToolBar( wx.TB_HORIZONTAL, wx.ID_ANY ) 
+        self.m_toolBar1.SetBackgroundColour("#1B2A41")
+
+        self.m_toolBar1.AddSeparator()
+        self.m_tool1 = self.m_toolBar1.AddTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resourses\\UI\\document_add.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+        self.m_tool2 = self.m_toolBar1.AddTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resourses\\UI\\folder.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+        self.m_tool3 = self.m_toolBar1.AddTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resourses\\UI\\Save_24x24.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+        self.m_toolBar1.AddSeparator()
+
+        self.m_toolBar1.Realize()
+        self.Bind( wx.EVT_TOOL, self.onNewProject, id = self.m_tool1.GetId() )
+        self.Bind( wx.EVT_TOOL, self.onOpenProject, id = self.m_tool2.GetId() )
+
+
 
         return m_menubar1
 
@@ -295,14 +323,15 @@ class TreePanel(wx.Panel):
 class PageOne(wx.Panel):
         def __init__(self, parent):
                 wx.Panel.__init__(self, parent)
+                self.SetBackgroundColour("#0C1821")
                 t = wx.StaticText(self, -1, "This is a PageOne object", (20, 20))
-
+                
 
 class PageTwo(wx.Panel):
         def __init__(self, parent, *args):
                 wx.Panel.__init__(self, parent)
                 # t = wx.StaticText(self, -1, "This is a PageTwo object", (40, 40))
-                p = SDLPanel(self, -1, (1000, 680), args[0])
+                p = SDLPanel(self, -1, (800, 680), args[0])
 
 
 class PageThree(wx.Panel):
@@ -310,7 +339,21 @@ class PageThree(wx.Panel):
                 wx.Panel.__init__(self, parent)
                 # t = wx.StaticText(self, -1, "This is a PageThree object", (60, 60))
                 nde = importlib.import_module('views.node_app.nodeEditor', '.')
-                p = nde.NodeEditor(self, -1, (1000, 680), args[0])
+                p = nde.NodeEditor(self, -1, (800, 680), args[0])
+
+class PageFour(wx.Panel):
+        def __init__(self, parent):
+                wx.Panel.__init__(self, parent)
+                t = wx.StaticText(self, -1, "This is a Script Editor", (20, 20))
+                # editor = importlib.import_module('views.editors.textEditor')
+                # editor.Editor()
+                self.SetBackgroundColour("#0C1821")
+                bSizer7 = wx.BoxSizer( wx.HORIZONTAL )
+                self.m_richText1 = wx.richtext.RichTextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.NO_BORDER|wx.WANTS_CHARS )
+                bSizer7.Add( self.m_richText1, 1, wx.EXPAND |wx.ALL, 5 )
+                self.SetSizer( bSizer7 )
+                self.Layout()
+                self.Centre( wx.BOTH )
 
 
 class SDLThread:
@@ -340,18 +383,7 @@ class SDLThread:
 
         def Run(self):
                 while self.m_bKeepGoing:
-                #I rewrote this to only draw when the position changes
-                # e = pygame.event.poll()
-                # if e.type == pygame.MOUSEBUTTONDOWN:
-                #     self.color = (255,0,128)
-                #     self.rect = (e.pos[0], e.pos[1], 100, 100)
-                #     print (e.pos)
-                #     self.screen.fill((0,0,0))
-                #     self.screen.fill(self.color,self.rect)
-                # if self.init:
-                #     self.screen.fill((0,0,0))
-                #     self.screen.fill(self.color,self.rect)
-                # pygame.display.flip()
+                        # pygame logics
                         self.designer.main()
                 self.m_bRunning = False
                 print("pygame draw loop exited")
@@ -393,5 +425,5 @@ class SDLPanel(wx.Panel):
 
 if __name__ == '__main__':
         app = wx.App()
-        NodeEditor(None, 'Node Editor')
+        NodeEditor(None, 'PyTrack - V 1.0')
         app.MainLoop()

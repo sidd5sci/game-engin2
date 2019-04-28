@@ -111,10 +111,10 @@ class MyDialog ( wx.Dialog ):
                         project = importlib.import_module('controllers.project_controller','.')
                         p = project.Project()
                         status = 0
-                        if self.m_checkBox1.GetValue(): 
+                        if self.m_checkBox1.GetValue() == True: 
                                 status = p.createNewProject(self.m_textCtrl1.GetValue(),"landscape")
-                        if self.m_checkBox2.GetValue():
-                                status = p.createNewProject(self.m_textCtrl2.GetValue(),"portrait")
+                        else:
+                                status = p.createNewProject(self.m_textCtrl1.GetValue(),"portrait")
 			
 		self.Close()
 		

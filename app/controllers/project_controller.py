@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 import os,time,random,math,subprocess
-
+import datetime 
 import importlib
 
 class Project():
@@ -31,14 +31,25 @@ class Project():
         def __init__(self,*args,**kwargs):
                 
                 self.paths =  importlib.import_module('paths','.')
+                self.size = ""
+                self.oriantation = ""
+                self.name = ""
+                self.created_at = ""
+                self.project_dir = "" # absolute path
         
         def createNewProject(self,name,oriantation):
                 os.chdir(self.paths.projects_path)
+                self.oriantation = oriantation
+                if oriantation == 'landscape':
+                    self.size = "800x480"
+                else :
+                    self.size = "480x800"
+                self.created_at = datetime.datetime.now()
+                self.project_dir = self.paths.projects_path+name
                 # Create target Directory if don't exist
                 if not os.path.exists(name):
                         os.mkdir(name)
                         os.chdir(self.paths.projects_path+name)
-                        # returned_value = os.system("python -m http.server")
                         os.mkdir("core")
                         os.mkdir("resources")
                         os.mkdir("nodes")
@@ -52,7 +63,11 @@ class Project():
 
                 else:    
                         print("Directory " , name ,  " already exists")
-        
+                # store the new project to database
+                project_model = importlib.import_module('models.project_model','.')
+                newProject = project_model.ProjectModel(name,oriantation,self.size,self.created_at,self.project_dir)
+                newProject.create()
+                
         def openProject(self,name):
                 pass
         

@@ -47,13 +47,13 @@ class Layer(object):
                 t.y = t.y + ty
     def moveTo(self,x,y):
         # self.checkCollision(self,x,y)
-        
         for t in self.tiles:
             if t.selected == True:
-                cx,cy = self.getCenter(t)
-                tx,ty = x-cx ,y-cy
-                t.x = t.x + tx
-                t.y = t.y + ty
+                    cx,cy = self.getCenter(t)
+                    tx,ty = x-cx ,y-cy
+                    print("<t.x,t.y>",t.x,t.y,"Diff>",x,y)
+                    t.x = t.x + x
+                    t.y = t.y + y
     def getCenter(self,tile):
         cx,cy = tile.x+tile.width/2,tile.y+tile.height/2
         return cx,cy

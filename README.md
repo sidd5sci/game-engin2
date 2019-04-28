@@ -43,6 +43,12 @@ https://gatc.ca/projects/
 ### Node editor 
 ```sh
 https://github.com/lukaszlipski/SphereTracingEditor/blob/master/SphereTracingEditor/GraphConnections.py
+
+http://jcgt.org/published/0004/04/03/paper.pdf 
+https://studio.code.org/flappy/1
+https://github.com/JLuebben/Floppy  ---
+https://github.com/FMichelD/PyQt5Nodes/tree/master/examples ---
+https://notabug.org/grindhold/libgtkflow#examples  --
 ```
 ### Game engine Architecture
 ```sh
@@ -60,6 +66,12 @@ https://github.com/alejandroautalan/pygubu
 ```
 http://www.kiwijs.org
 ```
+
+### phaser
+```
+https://phasereditor2d.com/blog/2018/11/phaser-editor-v2-development-progress-report-4
+```
+
 ### object tracker wxDC
 ```sh
 http://www.lprp.fr/soft/rphoto/rphoto_en.php3
@@ -80,6 +92,8 @@ https://github.com/wxWidgets/Phoenix/blob/master/demo/Overlay.py
 ```
 ### wxPython Refrence 
 ```sh
+https://www.youtube.com/watch?v=XVE673wsCEQ&list=PL1FgJUcJJ03vIgXI9BvOBdoc0S3PuzcRb
+
 https://wiki.wxpython.org/FrontPage
 
 https://www.youtube.com/watch?v=XVE673wsCEQ&list=PL1FgJUcJJ03vIgXI9BvOBdoc0S3PuzcRb
@@ -90,6 +104,13 @@ https://www.tutorialspoint.com/wxpython/wxpython_dockable_windows.htm
 
 file dialog
 https://wxpython.org/Phoenix/docs/html/wx.FileDialog.html
+collapse
+https://wxpython.org/Phoenix/docs/html/wx.lib.agw.pycollapsiblepane.html
+
+callbacks
+https://wiki.wxpython.org/Passing%20Arguments%20to%20Callbacks
+buttons
+https://www.blog.pythonlibrary.org/2010/06/09/wxpython-a-tour-of-buttons-part-1-of-2/
 ```
 ### import rules
 ```sh 
@@ -127,8 +148,13 @@ python3 -m http.server 8080
 https://github.com/sqlobject/sqlobject
 
 https://github.com/sqlalchemy/sqlalchemy
+https://auth0.com/blog/sqlalchemy-orm-tutorial-for-python-developers/
 ```
 ### wxEditor
 ```
 https://stackoverflow.com/questions/50187179/how-to-make-my-wxpython-text-editor-dark
+```
+### list of gameEngines
+```
+https://en.wikipedia.org/wiki/List_of_game_engines
 ```
