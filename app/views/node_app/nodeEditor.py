@@ -1,4 +1,4 @@
-import wx
+import wx,json
 
 class NodeEditor(wx.Panel):
     def __init__(self, parent, ID, tplSize, *args):
@@ -15,9 +15,21 @@ class NodeEditor(wx.Panel):
         self.end = []
         self.radius = 7
         self.initEditor()
+        # temp buffer
+        self.fromNode = -1
+        self.fromPin = -1
+        self.fromNodeType = ""
+        self.fromPinType = ""
+        self.nodeid = -1
+        self.nodeType = ""
+        self.pinId = -1
+        self.pinType = ""
 
     def initEditor(self):
         # bind mouse ,key
+        self.loadNodes()
+        for n in self.Nodes:
+            print("NODE ID : ",n.id)
         self.SetBackgroundColour("#0C1821")
         self.Bind(wx.EVT_PAINT, self.onPaint)
         self.Bind(wx.EVT_MOTION, self.OnMouseMove)
@@ -31,24 +43,22 @@ class NodeEditor(wx.Panel):
         dc.DrawRectangle(50, 50, 50, 50)
         dc.DrawRectangle(100, 100, 100, 100)
 
-    def onPaint(self, event):
-        event.Skip()
+    # def onPaint(self, event):
+    #     event.Skip()
 
-        dc = wx.PaintDC(self)
-        dc.BeginDrawing()
-        dc.EndDrawing()
+    #     dc = wx.PaintDC(self)
+    #     dc.BeginDrawing()
+    #     dc.EndDrawing()
 
     def onPaint(self, e):
         self.dc = wx.PaintDC(self)
 
         #dc.Clear()
         #dc.DrawBitmap(wx.Bitmap("python.jpg"),10,10,True)
-        self.createNode("Palyer", 200, 200, 100, 100)
-        self.createNode("Key Down", 400, 300, 100, 100)
         self.displayNodes()
         self.gc = wx.GraphicsContext.Create(self.dc)
         self.gc.PushState()
-        self.drawBezier(300, 200, 400, 300)
+        # self.drawBezier(300, 200, 400, 300)
         self.gc.PopState()
         #self.dc.EndDrawing()
 
@@ -78,12 +88,16 @@ class NodeEditor(wx.Panel):
             for n in self.Nodes:
                 for p in n.pins:
                     if p.selected == True:
+                        self.fromNode= n.id
+                        self.fromPin = p.id
+                        self.fromNodeType = n._type_
+                        self.fromPinType = p._type_
                         if p._type_ == 'output':
                             self.drawBezier(p.x+n.x, p.y+n.y,
                                             evtPos[0], evtPos[1])
                         else:
-                            self.drawBezier(
-                                evtPos[0], evtPos[1], p.x+n.x, p.y+n.y)
+                            self.drawBezier(evtPos[0], evtPos[1], 
+                                            p.x+n.x, p.y+n.y)
             self.displayNodes()
 
             try:
@@ -120,22 +134,22 @@ class NodeEditor(wx.Panel):
         self.start = None
         print("left Up", self.start)
 
-        flag, spid, sptp = 0, -1, ''
+        # creating edge 
+        for node in self.Nodes:
+            if node.isInsideOnly(x, y):
+                p = node.isInsidePinOnly(x, y)
+                if p:
+                    self.pinId = p.id
+                    self.pinType = p._type_
+                    self.nodeId = node.id
+                    self.nodeType = node._type_
+                    
         for n in self.Nodes:
-            for p in n.pins:
-                    if p.selected == True:
-                        flag = 1
-                        spid = p.id
-                        sptp = p._type_
-                        break
-            if flag == 1:
-                # search where the (x,y) lies
-                for node in self.Nodes:
-                    if node.isInsideOnly(x, y):
-                        p = node.isInsidePinOnly(x, y)
-                        if p:
-                            n.createConnection(x, y, node.id, p.id, spid, sptp)
-
+            if n.id == self.fromNode:
+                print("Edge created")
+                n.createConnection(self.fromNode,self.fromNodeType,self.fromPin,self.fromPinType,self.nodeId, self.nodeType,p.id, p._type_)
+                self.fromNode = -1
+        # deselecting all pins
         for n in self.Nodes:
                 for p in n.pins:
                     p.selected = False
@@ -148,6 +162,26 @@ class NodeEditor(wx.Panel):
         #brush = wx.Brush(wx.Colour(192,192,192,0x80))
         self.displayNodes()
 
+    def loadNodes(self):
+        nodeData = '{"nodes" :[{"id":456462,"title":"Palyer","type":"player","width":100,"height":150,"x":200,"y":200,"color":"#454555","pins":[{"id":45,"x":20,"y":30,"type":"input"},{"id":45,"x":20,"y":30,"type":"input"},{"id":45,"x":20,"y":30,"type":"output"}],"edges":[{"fromNode":1,"fromNodeType":"player","fromPin":0,"fromPinType":"output","nodeId":1,"nodeType":"key down","pinId":1,"pinType":"input"}]},{"id":456463,"title":"Palyer","type":"player","width":100,"height":150,"x":100,"y":100,"color":"#454555","pins":[{"id":45,"x":20,"y":30,"type":"input"},{"id":45,"x":20,"y":30,"type":"output"},{"id":45,"x":20,"y":30,"type":"output"}],"edges":[]},{"id":456463,"title":"Key Down","type":"Key Down","width":100,"height":100,"x":300,"y":500,"color":"#454555","pins":[{"id":45,"x":20,"y":30,"type":"input"},{"id":45,"x":20,"y":30,"type":"output"}],"edges":[]}]}'
+        fd = json.loads(nodeData)
+        i = 1
+        for n in fd['nodes']:
+            node = self.node_module.Node(i,n['title'],n['x'],n['y'],n['width'],n['height'],n['type'])
+            pins = n['pins']
+            i = i+1
+            for p in pins:
+                if p['type'] == 'input':
+                    node.setInputPin()
+                else:
+                    node.setOutputPin()
+            edges = n['edges']
+            # for e in edges:
+            #     node.createConnection(e['fromNode'],e['fromNodeType'],e['fromPin'],e['fromPinType'],e['nodeId'],e['nodeType'],e['pinId'],e['pinType'])
+            self.Nodes.append(node)
+        
+        print('Nodes..............................',self.Nodes)
+    
     def createMenu(self):
         self.dc.DrawRectangleList()
 
@@ -155,21 +189,36 @@ class NodeEditor(wx.Panel):
         print("Right up")
 
     def createNode(self, title, x, y, width, height):
-        n = self.node_module.Node(title, x, y, width, height)
+        n = self.node_module.Node(0,title, x, y, width, height)
+        n.setNodeId(len(self.Nodes))
         self.Nodes.append(n)
 
-    def addPin(self, _type_):
-        pass
-
-    def createNodeConnector(self):
-        pass
-
-    def displayConnector(self):
-        pass
-
+    def getCurrentPosition(self,nodeid):
+        for n in self.Nodes:
+            print(">>",nodeid,n.id)
+            if nodeid == n.id:
+                return n.getPosition()
+            else:
+                return False
+            
     def displayNodes(self):
         self.dc = wx.ClientDC(self)
         for n in self.Nodes:
+            print(len(n.edges))
+            for e in n.edges:
+                    e.get()
+                    if e:
+                        pos =  n.getPosition()
+                        pos2 = self.getCurrentPosition(e.nodeId)
+                        print("Positions:",pos,pos2)
+                        if e.fromPinType == 'output':
+                            print('output................................')
+                            self.drawBezier(pos[0]+n.width, pos[1]+(n.shift*e.fromPin),pos2[0], pos2[1]+(n.shift*e.pinId))
+                        else:
+                            print('input................................')
+
+                            self.drawBezier(pos2[0], pos2[1],pos[0], pos[1])
+                    
             if n.selected:
                 #brush = wx.Brush(wx.Colour(192,192,192,0x80))
                 self.dc.SetBrush(wx.Brush('#324A5F'))
@@ -210,8 +259,11 @@ class NodeEditor(wx.Panel):
                         self.dc.DrawCircle(n.x+n.width, n.y+p.y, n.radius)
                         self.dc.SetBrush(wx.Brush('#CCC9DC'))
                         self.dc.DrawCircle(n.x+n.width, n.y+p.y, n.radius-2)
-
-                font = wx.Font(14, wx.ROMAN, wx.ITALIC, wx.NORMAL)
+                
+                    
+                
+                # font = wx.Font(14, wx.MODERN, wx.ITALIC, wx.NORMAL)
+                font = wx.Font(14, wx.MODERN, wx.ITALIC, wx.NORMAL)
                 self.dc.SetFont(font)
                 self.dc.DrawText(n.title, n.x+10, n.y-20)
                 #n.conection()
