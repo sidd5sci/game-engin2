@@ -49,6 +49,8 @@ https://studio.code.org/flappy/1
 https://github.com/JLuebben/Floppy  ---
 https://github.com/FMichelD/PyQt5Nodes/tree/master/examples ---
 https://notabug.org/grindhold/libgtkflow#examples  --
+
+https://www.python-course.eu/graphs_python.php
 ```
 ### Game engine Architecture
 ```sh
@@ -80,6 +82,9 @@ https://github.com/lukaszlipski/SphereTracingEditor
 ```
 ### wx paint 
 ```sh
+best
+http://zetcode.com/wxpython/gdi/
+
 https://wxpython.org/Phoenix/docs/html/wx.DC.html
 
 https://stackoverflow.com/questions/2348183/graphicspath-doesnt-always-refresh-itself
