@@ -37,6 +37,7 @@ class Server():
         print("Task 1 assigned to thread: {}".format(threading.current_thread().name)) 
         print("ID of process running task 1: {}".format(os.getpid())) 
         # returned_value = os.system("python -m http.server")
+        os.system('python main.py')
 
     def start(self):
         self.server_thread.start()

@@ -52,25 +52,31 @@ class Project():
                         os.chdir(self.paths.projects_path+name)
                         os.mkdir("core")
                         os.mkdir("resources")
-                        os.mkdir("nodes")
                         os.chdir(self.paths.projects_path+name+"\\resources")
                         os.mkdir("music")
+                        os.mkdir("nodes")
+                        os.mkdir("objects")
                         os.mkdir("sounds")
                         os.mkdir("sprites")
                         os.mkdir("scenes")
-
+ 
                         print("Directory " , name ,  " Created ")
 
                 else:    
                         print("Directory " , name ,  " already exists")
                 # store the new project to database
                 project_model = importlib.import_module('models.project_model','.')
-                newProject = project_model.ProjectModel(name,oriantation,self.size,self.created_at,self.project_dir)
+                newProject = project_model.ProjectModel(name,oriantation,self.size,created_at=self.created_at,dir=self.project_dir)
                 newProject.create()
                 
         def openProject(self,name):
-                pass
-        
+                # store the new project to database
+                project_model = importlib.import_module('models.project_model','.')
+                openProject = project_model.ProjectModel()
+                allProjects = openProject.readAll()
+                for p in allProjects:
+                    if p.project_name == name:
+                        return p
         def removeProject(self,name):
                 pass
         
@@ -82,3 +88,4 @@ class Project():
         
         def recentProjects(self):
                 pass
+        

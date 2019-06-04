@@ -75,8 +75,11 @@ class MainWindow(wx.Frame):
         page1_menu = sideMenu1.SideMenuPanel(self.side_menu,self.designer)
         sideMenu2 = importlib.import_module('views.panels.side_menu2','.')
         page2_menu = sideMenu2.SideMenuPanel2(self.side_menu,self.designer)
+        sideMenu3 = importlib.import_module('views.panels.side_menu3','.')
+        page3_menu = sideMenu3.SideMenuPanel3(self.side_menu,self.designer)
         self.side_menu.AddPage(page1_menu,"Edit")
         self.side_menu.AddPage(page2_menu,"Objects")
+        self.side_menu.AddPage(page3_menu,"Nodes")
 
         bSizer2.Add(self.side_menu, 1, wx.EXPAND | wx.ALL, 5)
         # notebook
@@ -166,12 +169,12 @@ class MainWindow(wx.Frame):
     
     def onRun(self, evt):
         server = importlib.import_module('controllers.server_controller','.')
-        s = server.Server("shmup","8000")
+        s = server.Server("snake","8000")
         s.start()
 
     def onStop(self, evt):
         server = importlib.import_module('controllers.server_controller','.')
-        s = server.Server("shmup","8000")
+        s = server.Server("snake","8000")
         s.stop()
 
     def MakeMenuBar(self):
@@ -324,8 +327,10 @@ class PageOne(wx.Panel):
         def __init__(self, parent):
                 wx.Panel.__init__(self, parent)
                 self.SetBackgroundColour("#0C1821")
-                t = wx.StaticText(self, -1, "This is a PageOne object", (20, 20))
-                
+                font = wx.Font(pointSize=20, family=wx.MODERN, style=wx.NORMAL, weight=wx.FONTWEIGHT_BOLD)
+                t = wx.StaticText(self, -1, " PyTrack \n Version 1.0.1", (20, 20))
+                t.SetForegroundColour( wx.Colour( 14, 124, 123 ) )
+                t.SetFont(font)
 
 class PageTwo(wx.Panel):
         def __init__(self, parent, *args):
@@ -425,5 +430,5 @@ class SDLPanel(wx.Panel):
 
 if __name__ == '__main__':
         app = wx.App()
-        NodeEditor(None, 'PyTrack - V 1.0')
+        NodeEditor(None, 'PyTrack - V 1.0.1')
         app.MainLoop()

@@ -64,6 +64,13 @@ class Designer():
         self.Rect_module = args[3]
         # importing the Tile module
         self.Tile_module = args[4]
+        # project 
+        self.project =args[5]
+        # scene
+        self.scene = args[6]
+        # layers project
+        self.loaded_layers = args[7]
+
 
         # import the paths
         self.ABSPATH = kwargs['path']
@@ -95,6 +102,7 @@ class Designer():
         # added the default layer object to layers [id,layer,display]
         self.Layers.append([0,self.layer_0,True])
         self.currentSelectedLayer = 0
+        self.loadLayersDatabase()
 
         self.spritesList = list()
         # read all the sprites
@@ -226,7 +234,31 @@ class Designer():
             print("success")
             print(self.assets[0])
 
+    def loadLayersDatabase(self):
+
+        layerLoader = importlib.import_module('controllers.layer_controller','.')
+        ol = layerLoader.Layer()
+        layers_list = ol.loadLayer(self.scene.id)
+        print(">>Layers",len(layers_list))
+        if len(self.Layers) < len(layers_list):
+            for i in range(0,len(layers_list)):
+                # create new layers
+                id = len(self.Layers)
+                l = self.Layer_module.Layer(id,self.Tile_module,self.ABSPATH)
+                self.Layers.append([id,l,True])
+                # self.currentSelectedLayer = id
+                print ("Layer Selected : ", self.currentSelectedLayer)
         
+        # for l in self.loaded_layers:
+        #     for l1  in self.Layers:
+        #         if l1[1].layerCode == l.code:
+        #             l1[1].loadLayer(l.tiles)
+        #             for t in l1[1].tiles:
+        #                 t.setImage(self.ImageSet(t))
+                
+    def findAssest(self,t):
+        for a in self.assets:
+            pass
     def part(self,str):
         name,ext = str.split('.')
         return name
@@ -359,6 +391,17 @@ class Designer():
         data = image.tobytes()
         return pygame.image.fromstring(data, size, mode)
 
+    def exportLayers(self):
+        print(">> Exporting\n")
+        layerLoader = importlib.import_module('controllers.layer_controller','.')
+        ol = layerLoader.Layer()
+        
+        data = ''
+
+        for l in self.Layers:
+            data = l[1]._export(self.project.project_name,self.scene.id)
+            ol.createNewLayer(sid=self.scene.id,tiles=data,code=l[1].layerCode,name=l[1].name)
+    
     def _input(self,dt,mouse_rel,mouse_key):
         # loop through the events
         for event in pygame.event.get():
@@ -419,7 +462,8 @@ class Designer():
                         self.pointer.textureEnabled = True
                 if event.key == pygame.K_e:
                     # export the layer
-                    self.Layers[self.currentSelectedLayer][1]._export()
+                    self.exportLayers()
+                    # self.Layers[self.currentSelectedLayer][1]._export()
                 if event.key == pygame.K_k:
                     # send to back toggle
                     if self.sentToBack:
@@ -622,6 +666,8 @@ class Designer():
             # pygame display screen update
             pygame.display.update()
     
+
+    # API
     # Setters
     def setPointer(self,pointer):
         print(">>> Pointer",pointer)
@@ -681,7 +727,7 @@ class Designer():
                 self.currentPointerAssets = i
                 self.pointer.setImage(self.assets[i][0])
                 self.pointer.setFrame(self.assets[i][1])
-                self.pointer.textureName = self.assets[i][2]
+                self.pointer.textureName = "object ("+str(self.assets[i][3])+").png"
 
 
 if __name__ == "__main__":

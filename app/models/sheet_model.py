@@ -10,23 +10,18 @@ class ObjectModel(conn.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column('name', String(32))
     type_ = Column('type',String(32))
-    pid = Column('cat_id',Integer)
-    layers = Column('resources',Text)
+    pid = Column('pid',Integer)
+    layers = Column('la',Text)
     created_at = Column('created_at',Date)
     
     # resources = Column('resources',JSON)
 
-    def __init__(self,name=None,type_=None,cat_id=None,resources=None,status=None,frames=None,frame_width=None,frame_height=None,parent=None,created_at=None):
+    def __init__(self,name=None,type_=None,pid=None,layers=None,created_at=None):
         
         self.name = name 
         self.type_ = type_
-        self.cat_id = cat_id
-        self.resources = resources
-        self.status = status
-        self.frames = frames
-        self.frame_width = frame_width
-        self.frame_height = frame_height
-        self.parent = parent
+        self.pid = pid
+        self.layers = layers
         self.created_at = created_at
     
     def create(self):

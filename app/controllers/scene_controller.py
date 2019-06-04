@@ -29,47 +29,22 @@ import importlib
 class Scene():
         
         def __init__(self,*args,**kwargs):
-                
                 self.paths =  importlib.import_module('paths','.')
-                self.size = ""
-                self.oriantation = ""
-                self.name = ""
+                self.name = "" 
+                self.type_ = ""
+                self.pid = 0
+                self.layers = ""
                 self.created_at = ""
-                self.project_dir = "" # absolute path
         
-        def createNewProject(self,name,oriantation):
-                os.chdir(self.paths.projects_path)
-                self.oriantation = oriantation
-                if oriantation == 'landscape':
-                    self.size = "800x480"
-                else :
-                    self.size = "480x800"
-                self.created_at = datetime.datetime.now()
-                self.project_dir = self.paths.projects_path+name
-                # Create target Directory if don't exist
-                if not os.path.exists(name):
-                        os.mkdir(name)
-                        os.chdir(self.paths.projects_path+name)
-                        os.mkdir("core")
-                        os.mkdir("resources")
-                        os.mkdir("nodes")
-                        os.chdir(self.paths.projects_path+name+"\\resources")
-                        os.mkdir("music")
-                        os.mkdir("sounds")
-                        os.mkdir("sprites")
-                        os.mkdir("scenes")
-
-                        print("Directory " , name ,  " Created ")
-
-                else:    
-                        print("Directory " , name ,  " already exists")
-                # store the new project to database
-                project_model = importlib.import_module('models.project_model','.')
-                newProject = project_model.ProjectModel(name,oriantation,self.size,self.created_at,self.project_dir)
-                newProject.create()
+        def createNewScene(self,name,type_,pid,layers,created_at):
+                scene_model = importlib.import_module('models.scene_model','.')
+                newScene = scene_model.SceneModel(name,type_,pid,layers,created_at)
+                newScene.create()
                 
-        def openProject(self,name):
-                pass
+        def loadScene(self,pid):
+                scene_model = importlib.import_module('models.scene_model','.')
+                newScene = scene_model.SceneModel()
+                return newScene.read(pid)
         
         def removeProject(self,name):
                 pass
