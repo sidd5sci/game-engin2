@@ -1,7 +1,7 @@
 '''
 MIT License
 
-Copyright (c) 2018 sidd5sci
+Copyright (c) 2018 siddhartha singh <sidd5sci@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@ SOFTWARE.
 from PIL import Image
 import pygame,math,time,os
 import importlib
+import json
 #from layer import *
 #from pointer import *
 #from camera import *
@@ -63,9 +64,17 @@ class Designer():
         self.Rect_module = args[3]
         # importing the Tile module
         self.Tile_module = args[4]
+        # project 
+        self.project =args[5]
+        # scene
+        self.scene = args[6]
+        # layers project
+        self.loaded_layers = args[7]
+
 
         # import the paths
         self.ABSPATH = kwargs['path']
+        self.object_path = kwargs['objectPath']
 
         # screen height and width
         self.width ,self.height = 1000,640
@@ -93,12 +102,13 @@ class Designer():
         # added the default layer object to layers [id,layer,display]
         self.Layers.append([0,self.layer_0,True])
         self.currentSelectedLayer = 0
+        self.loadLayersDatabase()
 
         self.spritesList = list()
         # read all the sprites
         self.readSprites()
         self.assets = list()
-
+        self.loadDatabaseObjects()
         self.assetsLoader()
         self.currentPointerAssets = 4
         self.pointer.setImage(self.assets[self.currentPointerAssets][0])
@@ -173,7 +183,8 @@ class Designer():
         if self.sentToBack:
             if self.pointer.mode_1 == True:
                 if self.pointer.textureEnabled:
-                    self.screen.blit(self.convertPILtoPygame(self.pointer.image),(int(self.pointer.x),int(self.pointer.y)))
+                    pic = self.pointer.image.resize((self.pointer.width,self.pointer.height),Image.BILINEAR)
+                    self.screen.blit(self.convertPILtoPygame(pic),(int(self.pointer.x),int(self.pointer.y)))
                 else:
                     pygame.draw.rect(self.screen,self.pointer.color,(int(self.pointer.x),int(self.pointer.y),int(self.pointer.width),int(self.pointer.height)))
             
@@ -182,7 +193,8 @@ class Designer():
                     for t in layer[1].tiles:        
                         x,y = self.worldToScreen([t.x,t.y,50])
                         if t.textureEnabled:
-                            self.screen.blit(self.convertPILtoPygame(t.texture),(int(x),int(y)))
+                            pic = t.texture.resize((t.width,t.height),Image.BILINEAR)
+                            self.screen.blit(self.convertPILtoPygame(pic),(int(x),int(y)))
                         else:
                             pygame.draw.rect(self.screen,self.pointer.color,(int(x),int(y),int(t.width),int(t.height)))
                 
@@ -192,15 +204,61 @@ class Designer():
                     for t in layer[1].tiles:
                         x,y = self.worldToScreen([t.x,t.y,50])
                         if t.textureEnabled:
-                            self.screen.blit(self.convertPILtoPygame(t.texture),(int(x),int(y)))
+                            pic = t.texture.resize((t.width,t.height),Image.BILINEAR)
+                            self.screen.blit(self.convertPILtoPygame(pic),(int(x),int(y)))
                         else:
                             pygame.draw.rect(self.screen,self.pointer.color,(int(x),int(y),int(t.width),int(t.height)))
             if self.pointer.mode_1 == True:
                 if self.pointer.textureEnabled:
-                    self.screen.blit(self.convertPILtoPygame(self.pointer.image),(int(self.pointer.x),int(self.pointer.y)))
+                    pic = self.pointer.image.resize((self.pointer.width,self.pointer.height),Image.BILINEAR)
+                    self.screen.blit(self.convertPILtoPygame(pic),(int(self.pointer.x),int(self.pointer.y)))
                 else:
                     pygame.draw.rect(self.screen,self.pointer.color,(int(self.pointer.x),int(self.pointer.y),int(self.pointer.width),int(self.pointer.height)))
+    
+    def loadDatabaseObjects(self):
+        objectLoader = importlib.import_module('controllers.object_load_controller','.')
+        ol = objectLoader.ObjectLoader()
+        object_list = ol.loadObjects()
+
+        for o in object_list:
+            print("LOAD OBJECT:......................"+o.name)
+            r1 = self.Rect_module.Rect(0,0,o.frame_width,o.frame_height)
+            type_ = o.type_.split('.')
+            rs = json.loads(o.resources)
+            sp = rs['sprites'][0].split('.')
+            object_sprite = Image.open("resourses/"+rs["path"]+sp[0]+".png")
+            if type_[0] == 'static':
+                if type_[1] == 'single':
+                    self.assets.append([object_sprite.crop(r1.get()),r1,o.name,o.id])
             
+            print("success")
+            print(self.assets[0])
+
+    def loadLayersDatabase(self):
+
+        layerLoader = importlib.import_module('controllers.layer_controller','.')
+        ol = layerLoader.Layer()
+        layers_list = ol.loadLayer(self.scene.id)
+        print(">>Layers",len(layers_list))
+        if len(self.Layers) < len(layers_list):
+            for i in range(0,len(layers_list)):
+                # create new layers
+                id = len(self.Layers)
+                l = self.Layer_module.Layer(id,self.Tile_module,self.ABSPATH)
+                self.Layers.append([id,l,True])
+                # self.currentSelectedLayer = id
+                print ("Layer Selected : ", self.currentSelectedLayer)
+        
+        # for l in self.loaded_layers:
+        #     for l1  in self.Layers:
+        #         if l1[1].layerCode == l.code:
+        #             l1[1].loadLayer(l.tiles)
+        #             for t in l1[1].tiles:
+        #                 t.setImage(self.ImageSet(t))
+                
+    def findAssest(self,t):
+        for a in self.assets:
+            pass
     def part(self,str):
         name,ext = str.split('.')
         return name
@@ -262,61 +320,61 @@ class Designer():
 
         for sprite in self.spritesList:
             if sprite[2] == "clouds.png":
-                self.assets.append([sprite[1].crop(rc0.get()),rc0,self.part(sprite[2])])
+                self.assets.append([sprite[1].crop(rc0.get()),rc0,self.part(sprite[2]),0])
             if sprite[2] == "sky.png":
-                self.assets.append([sprite[1].crop(rs0.get()),rs0,self.part(sprite[2])])
+                self.assets.append([sprite[1].crop(rs0.get()),rs0,self.part(sprite[2]),0])
             if sprite[2] == "sea.png":
-                self.assets.append([sprite[1].crop(rw0.get()),rw0,self.part(sprite[2])])
+                self.assets.append([sprite[1].crop(rw0.get()),rw0,self.part(sprite[2]),0])
             if sprite[2] == "far_grounds.png":
-                self.assets.append([sprite[1].crop(rg0.get()),rg0,self.part(sprite[2])])
+                self.assets.append([sprite[1].crop(rg0.get()),rg0,self.part(sprite[2]),0])
             if sprite[2] == "tileset.png":
-                self.assets.append([sprite[1].crop(r1.get()),r1,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r2.get()),r2,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r3.get()),r3,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r4.get()),r4,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r5.get()),r5,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r6.get()),r6,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r7.get()),r7,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r8.get()),r8,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r9.get()),r9,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r10.get()),r10,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r11.get()),r11,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r12.get()),r12,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r13.get()),r13,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r14.get()),r14,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r15.get()),r15,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r16.get()),r16,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r17.get()),r17,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r18.get()),r18,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r19.get()),r19,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r20.get()),r20,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r21.get()),r21,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r22.get()),r22,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r23.get()),r23,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r24.get()),r24,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r25.get()),r25,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r26.get()),r26,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r27.get()),r27,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r28.get()),r28,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r29.get()),r29,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r30.get()),r30,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r31.get()),r31,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r32.get()),r32,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r33.get()),r33,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r34.get()),r34,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r35.get()),r35,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r36.get()),r36,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r37.get()),r37,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r38.get()),r38,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r39.get()),r39,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r40.get()),r40,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r41.get()),r41,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r42.get()),r42,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r43.get()),r43,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r44.get()),r44,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r45.get()),r45,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r46.get()),r46,self.part(sprite[2])])
-                self.assets.append([sprite[1].crop(r47.get()),r47,self.part(sprite[2])])
+                self.assets.append([sprite[1].crop(r1.get()),r1,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r2.get()),r2,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r3.get()),r3,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r4.get()),r4,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r5.get()),r5,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r6.get()),r6,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r7.get()),r7,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r8.get()),r8,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r9.get()),r9,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r10.get()),r10,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r11.get()),r11,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r12.get()),r12,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r13.get()),r13,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r14.get()),r14,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r15.get()),r15,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r16.get()),r16,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r17.get()),r17,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r18.get()),r18,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r19.get()),r19,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r20.get()),r20,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r21.get()),r21,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r22.get()),r22,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r23.get()),r23,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r24.get()),r24,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r25.get()),r25,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r26.get()),r26,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r27.get()),r27,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r28.get()),r28,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r29.get()),r29,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r30.get()),r30,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r31.get()),r31,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r32.get()),r32,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r33.get()),r33,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r34.get()),r34,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r35.get()),r35,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r36.get()),r36,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r37.get()),r37,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r38.get()),r38,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r39.get()),r39,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r40.get()),r40,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r41.get()),r41,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r42.get()),r42,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r43.get()),r43,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r44.get()),r44,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r45.get()),r45,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r46.get()),r46,self.part(sprite[2]),0])
+                self.assets.append([sprite[1].crop(r47.get()),r47,self.part(sprite[2]),0])
                 
     def ImageSet(self,t):
         for asset in self.assets:
@@ -333,6 +391,17 @@ class Designer():
         data = image.tobytes()
         return pygame.image.fromstring(data, size, mode)
 
+    def exportLayers(self):
+        print(">> Exporting\n")
+        layerLoader = importlib.import_module('controllers.layer_controller','.')
+        ol = layerLoader.Layer()
+        
+        data = ''
+
+        for l in self.Layers:
+            data = l[1]._export(self.project.project_name,self.scene.id)
+            ol.createNewLayer(sid=self.scene.id,tiles=data,code=l[1].layerCode,name=l[1].name)
+    
     def _input(self,dt,mouse_rel,mouse_key):
         # loop through the events
         for event in pygame.event.get():
@@ -372,6 +441,7 @@ class Designer():
                     # increase pointer height
                     self.pointer.height += 10
                     self.Layers[self.currentSelectedLayer][1].transform(0,10)
+                    print(self.pointer.height)
                 if event.key == pygame.K_j:
                     # increase the pointer width
                     self.pointer.width += 10
@@ -392,7 +462,8 @@ class Designer():
                         self.pointer.textureEnabled = True
                 if event.key == pygame.K_e:
                     # export the layer
-                    self.Layers[self.currentSelectedLayer][1]._export()
+                    self.exportLayers()
+                    # self.Layers[self.currentSelectedLayer][1]._export()
                 if event.key == pygame.K_k:
                     # send to back toggle
                     if self.sentToBack:
@@ -474,6 +545,7 @@ class Designer():
         
         if mouse_key[0] :
             if self.pointer.mode_1 == True:
+                # draw mode
                 # getting the current position of the mouse 
                 p = pygame.mouse.get_pos()
                 # convert the screen coordinates to world co-ordinates
@@ -491,14 +563,23 @@ class Designer():
                     self.Layers[self.currentSelectedLayer][1].addTile(t)
                     time.sleep(0.1)
             else:
+                # move mode
                 # getting the current position of the mouse 
                 p = pygame.mouse.get_pos()
                 # convert the screen coordinates to world co-ordinates
                 x,y,z = self.screenToWorld([self.pointer.x,self.pointer.y])
-                # drag the selected tiles                
+                # drag the selected tiles          
                 if self.Layers[self.currentSelectedLayer][1].isInside(x,y):
-                    self.Layers[self.currentSelectedLayer][1].moveTo(x,y)
-                    self.held= True
+                    if self.px == 0 and self.py == 0:
+                        self.px = self.pointer.x
+                        self.py = self.pointer.y
+                    else :   
+                        dx = self.px - self.pointer.x
+                        dy = self.py - self.pointer.y 
+                        self.Layers[self.currentSelectedLayer][1].moveTo(-dx,-dy)
+                        self.held= True
+                        self.px,self.py = self.pointer.x,self.pointer.y
+                        print(self.px,self.py,"| ",self.pointer.x,x)
                 else:
                     # deselect all
                     self.Layers[self.currentSelectedLayer][1].deSelectAll()
@@ -510,7 +591,7 @@ class Designer():
                         dy = self.py - self.pointer.y
                         print("CAM:",self.cam.pos)
                         print("POINTER:",self.pointer.x,self.pointer.y)
-                        print("DE",dx,dy)
+                        print("DIFf",dx,dy)
                         self.cam.drag(dx,dy,0)
                         self.px,self.py = self.pointer.x,self.pointer.y
         if mouse_key[2]:
@@ -526,9 +607,9 @@ class Designer():
         self.pointer.x = p[0]
         self.pointer.y = p[1]
 
-        if self.pointer.textureEnabled:
-            self.pointer.width = self.pointer.fWidth
-            self.pointer.height = self.pointer.fHeight
+        # if self.pointer.textureEnabled:
+        #     self.pointer.width = self.pointer.fWidth
+        #     self.pointer.height = self.pointer.fHeight
 
     def readSprites(self):
         # get the cuurent directory
@@ -552,7 +633,7 @@ class Designer():
         use Arrow Key to move the camera 
         - : layer selection 
         + : layer selection 
-        l : hide layer 
+        l : hide layer  
         n : create new layer 
         k : send to back
         c : change selected asset 
@@ -584,8 +665,70 @@ class Designer():
             self._input(dt,mouse_rel,mouse_buttons)
             # pygame display screen update
             pygame.display.update()
-        
     
+
+    # API
+    # Setters
+    def setPointer(self,pointer):
+        print(">>> Pointer",pointer)
+        if pointer == 1:
+            self.pointer.mode_2 = False
+            self.pointer.mode_1 = True
+            print("Mode Draw.....................Active")
+        else :
+            self.pointer.mode_1 = False
+            self.pointer.mode_2 = True
+            print("Mode Move.....................Active")
+
+    def layer(self,action):
+        if action == "add":    
+            # create new layer
+            id = len(self.Layers)
+            l = self.Layer_module.Layer(id,self.Tile_module,self.ABSPATH)
+            self.Layers.append([id,l,True])
+            self.currentSelectedLayer = id
+            print ("Layer Selected : ", self.currentSelectedLayer)
+        if action == "up":
+            # increse the current layer number
+            if self.currentSelectedLayer < len(self.Layers)-1:
+                self.currentSelectedLayer = self.currentSelectedLayer+1
+            if self.currentSelectedLayer >= len(self.Layers)-1:
+                self.currentSelectedLayer = len(self.Layers)-1
+            print ("Layer Selected : ", self.currentSelectedLayer)
+        if action == "down":
+            # decrese the current layer number
+            if self.currentSelectedLayer !=0:
+                self.currentSelectedLayer = self.currentSelectedLayer-1
+            print ("Layer Selected : ", self.currentSelectedLayer)
+        if action == "hide":
+            # hide and un-hide the content of the layer
+            if self.Layers[self.currentSelectedLayer][2]:
+                self.Layers[self.currentSelectedLayer][2] = False
+                return 1
+            else:
+                self.Layers[self.currentSelectedLayer][2] = True
+                return 0
+
+        if action == "unhide":    
+            # unhide the layer
+            self.Layers[self.currentSelectedLayer][2] = False
+    
+    def objectZindex(self,action):
+        if action  == "back":
+            self.sentToBack = True
+            print(self.sentToBack)
+        if action == "front":
+            self.sentToBack = False
+            print(self.sentToBack)
+
+    def setObject(self,id):
+        for i in range(0,len(self.assets)):
+            if self.assets[i][3] == id:
+                self.currentPointerAssets = i
+                self.pointer.setImage(self.assets[i][0])
+                self.pointer.setFrame(self.assets[i][1])
+                self.pointer.textureName = "object ("+str(self.assets[i][3])+").png"
+
 
 if __name__ == "__main__":
     d = Designer()

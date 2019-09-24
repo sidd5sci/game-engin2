@@ -34,6 +34,7 @@ class Layer(object):
         self.layerCode = args[0]
         self.Tile_module = args[1]
         self.ABSPATH = args[2]
+        self.name = ""
     
     def createLayer(self,layer,type):
         if type == '.json':
@@ -47,13 +48,13 @@ class Layer(object):
                 t.y = t.y + ty
     def moveTo(self,x,y):
         # self.checkCollision(self,x,y)
-        
         for t in self.tiles:
             if t.selected == True:
-                cx,cy = self.getCenter(t)
-                tx,ty = x-cx ,y-cy
-                t.x = t.x + tx
-                t.y = t.y + ty
+                    cx,cy = self.getCenter(t)
+                    tx,ty = x-cx ,y-cy
+                    print("<t.x,t.y>",t.x,t.y,"Diff>",x,y)
+                    t.x = t.x + x
+                    t.y = t.y + y
     def getCenter(self,tile):
         cx,cy = tile.x+tile.width/2,tile.y+tile.height/2
         return cx,cy
@@ -116,13 +117,22 @@ class Layer(object):
     def removeRecentTile(self):
         del self.tiles[-1]
 
-    def _export(self):
+    def _export(self,path,sid):
 
         print("Optamizing ...")
         self.optimise()
-        preset = input("Enter the preset : ")
-        file_ = open(self.ABSPATH+"data\l"+str(preset)+"_layer_"+str(self.layerCode)+".json","w+")
-                   
+        # preset = input("Enter the preset : ")
+        # file_ = open(self.ABSPATH+"data\l"+str(preset)+"_layer_"+str(self.layerCode)+".json","w+")
+        
+        # if not os.path.exists(path+"\\resources\scenes"):
+        #     os.chdir(path+"\\resources")
+        #     os.mkdir("scenes")
+
+        try:
+            file_ = open(self.ABSPATH+"\\projects\\"+path+"\\resources\scenes\s_"+str(sid)+"_l_"+str(self.layerCode)+".json","w+")
+        except FileNotFoundError:
+            file_ = open(self.ABSPATH+"\\projects\\"+path+"\\resources\scenes\s_"+str(sid)+"_l_"+str(self.layerCode)+".json","w")
+
         string_ = '{"tiles":['
         for t in self.tiles:
             s = '{"x":'+str(t.x)+',"y":'+str(t.y)+',"w":'+str(t.width)+',"h":'+str(t.height)+',"text":"'+str(t.text)+'"'
@@ -130,12 +140,14 @@ class Layer(object):
             s += ',"spriteEnabled":"'+str(t.textureEnabled)+'"'
             s += ',"sprite":"'+str(t.textureName)+'","bitx":'+str(t.fx)+',"bity":'+str(t.fy)+',"bitw":'+str(t.fWidth)+',"bith":'+str(t.fHeight)+',"widthRatio":1,"heightRatio":1}'
             string_ += s+','
-        
+    
+        string_ = string_[:-1]
         string_ += ']}'
 
         print (string_)
         file_.write(string_)
         file_.close()
+        return string_
     def _import(self):
         
         path = os.getcwd()
@@ -164,8 +176,31 @@ class Layer(object):
             print(tile.textureEnabled,tile.textureName,t['spriteEnabled'])
             tile.color = [254,t['color'][1],t['color'][2],t['color'][3]]         
             self.tiles.append(tile)
-            
+    
+    def loadLayer(self,layerData):
 
+        
+        
+        # parsing the json file 
+        fd = json.loads(layerData)
+        # deleting all other tiles of the layer
+        self.deleteAll()
+
+        for t in fd['tiles']:
+            tile = self.Tile_module.Tile(t['x'],t['y'],t['w'],t['h'])
+            #t.setImage(pointer.image)
+            tile.setFrame(t['bitx'],t['bity'],t['bitw'],t['bith'])
+            tile.textureName = t['sprite']
+            if t['spriteEnabled'] == "True":
+                tile.textureEnabled = True
+            else:
+                tile.textureEnabled = False
+            print(tile.textureEnabled,tile.textureName,t['spriteEnabled'])
+            tile.color = [254,t['color'][1],t['color'][2],t['color'][3]]         
+            self.tiles.append(tile)
+            
+            
+    
 
 
                    

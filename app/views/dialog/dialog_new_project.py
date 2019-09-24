@@ -108,11 +108,14 @@ class MyDialog ( wx.Dialog ):
 		print(self.m_checkBox2.GetValue())
 		
 		if self.m_textCtrl1.GetValue():
-			if self.m_checkBox1.GetValue() or self.m_checkBox2.GetValue():
-
-				project = importlib.import_module('controllers.project_controller','.')
-				p = project.Project()
-				p.createNewProject(self.m_textCtrl1.GetValue(),"land")
+                        project = importlib.import_module('controllers.project_controller','.')
+                        p = project.Project()
+                        status = 0
+                        if self.m_checkBox1.GetValue() == True: 
+                                status = p.createNewProject(self.m_textCtrl1.GetValue(),"landscape")
+                        else:
+                                status = p.createNewProject(self.m_textCtrl1.GetValue(),"portrait")
+			
 		self.Close()
 		
 	def OnClickLandscape(self,evt):

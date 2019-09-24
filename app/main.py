@@ -53,14 +53,6 @@ def find_module(str):
     k = [i for i in range(len(lib_names)) if lib_names[i] == str]
     return libs[k[0]]
 
-
-def create_new_project():
-    # start the new project window
-    newDialog = importlib.import_module('dialog_new_project', '.')
-    newDialogObject = newDialog.Project()
-    newDialogObject.startWindow()
-
-
 #######################################################
 ### globals
 #######################################################
@@ -70,19 +62,31 @@ libs = list()
 
  
 def main():
-    load_lib()
+    # loading project
+    project_module = importlib.import_module('controllers.project_controller','.')
+    project = project_module.Project()
+    p = project.openProject('snake')
+    # loading scene
+    scene_module = importlib.import_module('controllers.scene_controller','.')
+    scene = scene_module.Scene()
+    s = scene.loadScene(p.id)
+    # loading layers
+    layer_module = importlib.import_module('controllers.layer_controller','.')
+    layers = layer_module.Layer()
+    l = layers.loadLayer(s.id)
 
+    # loading library
+    load_lib()
     designer = find_module('designer').Designer(find_module('layer'),
                                 find_module('camera'),
                                 find_module('pointer'),
                                 find_module('rect'),
-                                find_module('tile'), path=path)
+                                find_module('tile'),
+                                p,s,l, path=path,objectPath=objects_path)
 
-    # designer.main()
-    # create_new_project()
 
     app = wx.App()
-    view.MainWindow(None, "Node Editor", find_module('node'), designer)
+    view.MainWindow(None, "PyTrack V 1.0.1 | "+p.project_name, find_module('node'), designer)
     app.MainLoop()
 
 

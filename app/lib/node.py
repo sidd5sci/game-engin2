@@ -30,29 +30,26 @@ import importlib
 class Node():
     def __init__(self,*args,**kwargs):
         
-        self.id = 0
-        self.title =args[0]
-        self.x = args[1]
-        self.y = args[2]
-        self.width = args[3]
-        self.height = args[4]
+        self.id = args[0]
+        self.title =args[1]
+        self.x = args[2]
+        self.y = args[3]
+        self.width = args[4]
+        self.height = args[5]
+        self._type_ = args[6]
 
         self.AUTO_ADGUST = True
         self.COLOR = '#1B2A41'
         self.selected = False
         # store the id of the nodes
         self.pins = []
-        
-        self.entities = []
-
+        self.edges = []
         self.shift = 25
-        
         self.radius = 7
-        self.setInputPin()
-        self.setInputPin()
-        self.setOutputPin()
-        self.setInputPin()
-        
+        # self.setInputPin()
+        # self.setInputPin()
+        # self.setOutputPin()
+        # self.setInputPin()
         
     def countInputPins(self):
         cnt = 0
@@ -81,6 +78,9 @@ class Node():
         y = self.shift + self.shift*c
         p = Pin(c+1,'output',x,y)
         self.pins.append(p)
+
+    def setNodeId(self,id_):
+        self.id = id_
 
     def setX(self,x):
         self.x =x
@@ -122,15 +122,9 @@ class Node():
                 return pin
         return False 
     
-    def createConnection(self,x,y,nid,pid,spid,sptp):
-
-        e = Edge()
-        e.setConnection(nid,pid)
-        for p in self.pins:
-            if p._type_ == sptp:
-                if p.id == spid:
-                    p.connections.append(e)
-                    print(">>Connection [ N",self.id,": P ",spid,"]=>[ N",nid,": P ",pid,"]")
+    def createConnection(self,fromNode,fromNodeType,fromPin,fromPinType,nid,ntype,pid,ptype):
+        e = Edge(fromNode,fromNodeType,fromPin,fromPinType,nid,ntype,pid,ptype)
+        self.edges.append(e)
         
     def isInsideOnly(self,x,y):
         if x >self.x and x < (self.x+self.width):
@@ -140,9 +134,12 @@ class Node():
                 return False
         else: 
             return False
+    def getPosition(self):
+        return self.x,self.y
     def translate(self,dx,dy):
         self.x += dx
         self.y += dy
+
     def dist(self,x1,y1,x2,y2):
         return math.sqrt((x2-x1)**2 +(y2-y1)**2)
 
@@ -160,12 +157,29 @@ class Pin(object):
         self.selected = False
 
 class Edge(object):
-    def __init__(self):
-        self.nodeId = -1
-        self.pins = []
-    def setConnection(self,nid,pid):
-        self.nodeId = nid
-        self.pins.append(pid)
+    def __init__(self,fromNode,fromNodeType,fromPin,fromPinType,nodeId,nodeType,pinId,pinType):
+        # from
+        self.fromNode = fromNode
+        self.fromNodeType = fromNodeType
+        self.fromPin = fromPin
+        self.fromPinType = fromPinType
+        # to 
+        self.nodeId = nodeId
+        self.nodeType = nodeType
+        self.pinType = pinType
+        self.pinId = pinId
+    
+    def get(self):
+        print("Edge>>",
+            self.fromNode 
+            ,self.fromNodeType 
+            ,self.fromPin 
+            ,self.fromPinType 
+            ,self.nodeId 
+            ,self.nodeType 
+            ,self.pinType 
+            ,self.pinId )
+    
 
 '''
 {
@@ -177,46 +191,12 @@ class Edge(object):
         "d" : ["c"],
         "e" : ["c", "b"],
         "f" : []
-    },
-    
-    "nodes" : {
-        "a" : {
-            "id":456462,
-            "title": "Palyer",
-            "type": "player",
-            "width":100,
-            "height": 150,
-            "x":200,
-            "y":200,
-            "color":"#454555",
-            "pins":[
-                {
-                    "id":45,
-                    "x":20,
-                    "y":30,
-                    "type":"input",
-                    "connection":[]
-                },
-                {
-                    "id":45,
-                    "x":120,
-                    "y":30,
-                    "type":"output",
-                    "connection":[
-                        "a":[0,5],
-                        "b":[3]
-                    ]
-                    
-                }
-            ],
-
-        },
-        "b" : {},
-        "c" : {}
-
-    }, 
+    }
     
 }
+
+{"nodes" :[{"id":456462,"title":"Palyer","type":"player","width":100,"height":150,"x":200,"y":200,"color":"#454555","pins":[{"id":45,"x":20,"y":30,"type":"input"},{"id":45,"x":20,"y":30,"type":"output"}],"edges":[{"fromNode":1,"fromNodeType":"player","fromPin":0,"fromPinType":"output","nodeId":1,"nodeType":"key down","pinId":1,"pinType":"input"}]},{"id":456463,"title":"Palyer","type":"player","width":100,"height":150,"x":100,"y":100,"color":"#454555","pins":[{"id":45,"x":20,"y":30,"type":"input"}],"edges":[]},{"id":456463,"title":"Key Down","type":"Key Down","width":100,"height":100,"x":300,"y":500,"color":"#454555","pins":[{"id":45,"x":20,"y":30,"type":"input"},{"id":45,"x":20,"y":30,"type":"output"}],"edges":[]}]}
+
 '''
 
 class Graph(object):

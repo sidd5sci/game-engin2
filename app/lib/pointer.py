@@ -57,9 +57,11 @@ class Pointer():
         
     def setImage(self,image):
         self.image = image
+
     def setPos(self,x,y):
         self.x = x
         self.y = y
+
     def setFrame(self,r):
         self.fx = r.x
         self.fy = r.y
@@ -68,6 +70,7 @@ class Pointer():
 
     def setWidth(self,width):
         self.width = width
+        
     def setHeight(self,height):
         self.height = height
     
